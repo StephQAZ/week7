@@ -2,11 +2,39 @@
 //
 
 #include <iostream>
+#include <opencv2/opencv.hpp>
+#include <math.h>
+
+#define pi 3.1415926
+
+using namespace cv;
 
 int main()
 {
-    std::cout << "Hello World!\n";
+	cv::Mat srcMat = imread("C:\\Users\\27318\\Desktop\\大二下网络课程\\数字图像\\第六周\\lena.jpg", 1);
+	cv::Mat dstMat;
+	if (srcMat.empty()) return -1;
+	int height = srcMat.rows;
+	int width = srcMat.cols;
+
+	//顺时针旋转10°
+	float angle = -10.0;
+	//缩小sin+cos倍
+	float thita = abs(angle) / 360 * 2 * pi;
+	float scale = width / (sin(thita) * height + cos(thita) * width);
+
+	//旋转中心为图像中心
+	cv::Point2f center(srcMat.cols * 0.5, srcMat.rows * 0.5);
+	//获得变换矩阵
+	const cv::Mat affine_matrix = cv::getRotationMatrix2D(center, angle, scale);
+
+	cv::warpAffine(srcMat, dstMat, affine_matrix, srcMat.size());
+
+	cv::imshow("srcMat", srcMat);
+	cv::imshow("dstMat", dstMat);
+	waitKey(0);
 }
+
 
 // 运行程序: Ctrl + F5 或调试 >“开始执行(不调试)”菜单
 // 调试程序: F5 或调试 >“开始调试”菜单
