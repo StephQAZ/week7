@@ -16,19 +16,29 @@ int main()
 	if (srcMat.empty()) return -1;
 	int height = srcMat.rows;
 	int width = srcMat.cols;
+	/*方法一*/
+	////顺时针旋转10°
+	//float angle = -10.0;
+	////缩小sin+cos倍
+	//float thita = abs(angle) / 360 * 2 * pi;
+	//float scale = width / (sin(thita) * height + cos(thita) * width);
 
-	//顺时针旋转10°
+	////旋转中心为图像中心
+	//cv::Point2f center(srcMat.cols * 0.5, srcMat.rows * 0.5);
+	////获得变换矩阵
+	//const cv::Mat affine_matrix = cv::getRotationMatrix2D(center, angle, scale);
+
+	//cv::warpAffine(srcMat, dstMat, affine_matrix, srcMat.size());
+
+	/*方法二*/
 	float angle = -10.0;
-	//缩小sin+cos倍
-	float thita = abs(angle) / 360 * 2 * pi;
-	float scale = width / (sin(thita) * height + cos(thita) * width);
-
-	//旋转中心为图像中心
-	cv::Point2f center(srcMat.cols * 0.5, srcMat.rows * 0.5);
-	//获得变换矩阵
-	const cv::Mat affine_matrix = cv::getRotationMatrix2D(center, angle, scale);
-
-	cv::warpAffine(srcMat, dstMat, affine_matrix, srcMat.size());
+	float scale = 1;
+	cv::Point2f center(srcMat.cols / 2.0, srcMat.rows / 2.0);
+	cv::Mat rot = cv::getRotationMatrix2D(center, angle, scale);
+	cv::Rect bbox = cv::RotatedRect(center, srcMat.size(), angle).boundingRect();
+	rot.at<double>(0, 2) += bbox.width / 2.0 - center.x;
+	rot.at<double>(1, 2) += bbox.width / 2.0 - center.y;
+	cv::warpAffine(srcMat, dstMat, rot, bbox.size());
 
 	cv::imshow("srcMat", srcMat);
 	cv::imshow("dstMat", dstMat);
